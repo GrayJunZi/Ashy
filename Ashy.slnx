@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Ashy/Ashy.csproj" />
+    <Project Path="src/Ashy.AspNetCore/Ashy.AspNetCore.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Ashy.UnitTests/Ashy.UnitTests.csproj" />
+  </Folder>
+</Solution>
