@@ -3,21 +3,11 @@ using System.Diagnostics;
 namespace Ashy.Context;
 
 /// <summary>
-/// 跨服务上下文，基于 W3C TraceContext 标准，通过 AsyncLocal 在异步调用链中自动传播
+/// 跨服务上下文，基于 W3C TraceContext 标准。
+/// 通过 ICorrelationContextAccessor 在异步调用链中自动传播。
 /// </summary>
 public class CorrelationContext
 {
-    private static readonly AsyncLocal<CorrelationContext?> _current = new();
-
-    /// <summary>
-    /// 当前上下文实例
-    /// </summary>
-    public static CorrelationContext? Current
-    {
-        get => _current.Value;
-        set => _current.Value = value;
-    }
-
     /// <summary>
     /// W3C 追踪 ID（32 位十六进制）
     /// </summary>

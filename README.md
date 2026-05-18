@@ -146,28 +146,31 @@ var jsonAsync = await user.ToJsonAsync();
 以下展示 Ashy 目标形态的链式构建器：
 
 ```csharp
+using Ashy.Abstractions;
+using Ashy.Options;
+
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddAshy(new AshyOptions
+builder.AddAshy(options =>
 {
-    ServiceName = "order-service",
-    Environment = "production"
+    options.ServiceName = "order-service";
+    options.Environment = "production";
 })
 .UseNacos(nacos =>
 {
-    nacos.ServerAddresses = new[] { "http://nacos:8848" };
+    // nacos.ServerAddresses = new[] { "http://nacos:8848" };  // P1 实现
 })
 .UseServiceProxy()
 .UseObservability()
-.UseMessaging(mq => mq.UseRabbitMQ())
-.UseCaching(cache => cache.UseRedis("redis:6379"))
+.UseMessaging()
+.UseCaching()
 .UseMultiTenancy()
 .Build();
 
-app.MapGet("/api/orders/{id}", async (Guid id, IOrderRepository repo) =>
+app.MapGet("/api/orders/{id}", async (Guid id) =>
 {
-    var order = await repo.GetByIdAsync(id);
-    return Results.Ok(new ApiResult<Order>(true, null, order));
+    var order = new { Id = id, Status = "pending" };
+    return Results.Ok(ApiResult<object>.Ok(order));
 });
 
 app.Run();
@@ -179,8 +182,8 @@ app.Run();
 
 | 状态 | 包名 | 说明 |
 | :---: | ---- | ---- |
-| ✅ | **Ashy** | 核心库：通用扩展、XML/JSON 序列化 |
-| ✅ | **Ashy.AspNetCore** | ASP.NET Core 集成：服务注册、中间件、DI 增强、API 版本管理 |
+| ✅ | **Ashy** | 核心库：Host 构建器、模块系统、上下文传播、统一响应模型、异常映射、序列化 |
+| ✅ | **Ashy.AspNetCore** | ASP.NET Core 集成：异常处理中间件、DI 注册、中间件管道 |
 | 🚧 | Ashy.Cryptography | 对称 / 非对称加密、哈希、签名、证书管理 |
 | 🚧 | Ashy.Configuration | 多源配置合并、选项模式增强、热更新 |
 | 🚧 | Ashy.Http | HttpClient 封装：重试策略、熔断、链路传递 |
@@ -297,7 +300,7 @@ app.Run();
 | 注册中心 | Nacos SDK 2.x | 服务发现 + 配置 |
 | 定时任务 | Quartz.NET 3.x | 任务调度 |
 | 消息队列 | RabbitMQ.Client 7.x / Confluent.Kafka 2.x | 双 MQ 支持 |
-| 测试 | xUnit 2.x + Testcontainers 4.x | 单元测试 + 集成测试 |
+| 测试 | xUnit v3 + Testcontainers 4.x | 单元测试 + 集成测试 |
 | 性能测试 | BenchmarkDotNet 0.x | 基准测试 |
 
 ## 开发要求
@@ -316,7 +319,7 @@ dotnet test
 
 | 阶段 | 周期 | 核心交付 |
 |------|------|----------|
-| **P0 基础建设** | Month 1-2 | Ashy.Core（Host 构建器、模块系统、上下文传播、统一响应）、CI/CD、文档站点 |
+| **P0 基础建设** | Month 1-2 | Ashy.Core（Host 构建器、模块系统、上下文传播、统一响应、异常处理中间件）✅ |
 | **P1 服务通信** | Month 3-4 | Ashy.Nacos（注册/发现/配置）、Ashy.ServiceProxy（HTTP + gRPC 代理、负载均衡、弹性管道） |
 | **P2 网关** | Month 5-6 | Ashy.Gateway（YARP 动态路由、认证中继、限流、gRPC-Web 转码） |
 | **P3 可观测性** | Month 7-8 | Ashy.Observability（OpenTelemetry 全链路追踪、Prometheus 指标、Serilog 集成、Health Check UI） |

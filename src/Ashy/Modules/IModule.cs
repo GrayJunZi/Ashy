@@ -1,3 +1,7 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
 namespace Ashy.Modules;
 
 /// <summary>
@@ -6,12 +10,22 @@ namespace Ashy.Modules;
 public interface IModule
 {
     /// <summary>
-    /// 模块名称
+    /// 模块唯一名称
     /// </summary>
     string Name { get; }
 
     /// <summary>
-    /// 加载顺序，越小越先加载
+    /// 加载顺序，数字越小越先加载，默认 0
     /// </summary>
     int Order => 0;
+
+    /// <summary>
+    /// 注册服务到 DI 容器
+    /// </summary>
+    void ConfigureServices(IServiceCollection services, IConfiguration configuration);
+
+    /// <summary>
+    /// 配置中间件管道
+    /// </summary>
+    void Configure(IApplicationBuilder app);
 }
